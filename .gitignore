@@ -1,0 +1,5 @@
+# mapped directories
+/data/**
+!/data/.gitkeep
+/logs/**
+!/logs/.gitkeep

@@ -1,0 +1,30 @@
+version: '3.1'
+
+# Default ${TEAMCITY_VERSION} is defined in .env file
+
+services:
+  teamcity:
+    image: jetbrains/teamcity-server:${TEAMCITY_VERSION}
+    ports:
+      - "8111:8111"
+    volumes:
+      # TeamCity data directory. For this, create empty `data` directory in same folder as this file and provide its path here
+      - ./data:/data/teamcity_server/datadir
+      # TeamCity logs directory. For this, create empty `logs` directory in same folder as this file and provide its path here
+      - ./logs:/opt/teamcity/logs
+
+  teamcity-agent-1:
+    image: jetbrains/teamcity-agent:${TEAMCITY_VERSION}
+    privileged: true
+    # we need to use root user to be able to run docker inside the container
+    user: root
+    volumes:
+      - ./agents/agent-1/conf:/data/teamcity_agent/conf
+      # add this line to make docker-in-docker work
+      - /var/run/docker.sock:/var/run/docker.sock
+      # add this to map buildagent's work dir to the host filesystem
+      - /opt/buildagent/work:/opt/buildagent/work 
+      # add this to map buildagent's temp dir to the host filesystem
+      - /opt/buildagent/temp:/opt/buildagent/temp
+    environment:
+      - DOCKER_IN_DOCKER=start
